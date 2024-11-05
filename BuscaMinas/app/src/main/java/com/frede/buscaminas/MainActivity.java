@@ -55,10 +55,10 @@ public class MainActivity extends AppCompatActivity
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
-        bombCountTextView = findViewById(R.id.bombCountTextView);
-        characterIconImageView = findViewById(R.id.characterIconImageView);
-        bombCountTextView.setText("Bombs: " + bombCount);
-        characterIconImageView.setImageResource(selectedCharacterID);
+        bombCountTextView = findViewById(R.id.bombCountTextView);// To Show the bombs still to find
+        characterIconImageView = findViewById(R.id.characterIconImageView);// To Show the selected character
+        bombCountTextView.setText("Bombs: " + bombCount);// Set the initial value
+        characterIconImageView.setImageResource(selectedCharacterID); // Set the initial value
     }
 
     @Override
@@ -89,12 +89,15 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void showInstructions(){
+       // Create an AlertDialog
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
+        // Set the dialog message
         builder.setTitle(getString(R.string.st_instructions))
                 .setMessage(getString(R.string.st_instructions_text))
-                .setPositiveButton("OK", (dialog, id) -> dialog.dismiss()); // Using lambda expression
+                .setPositiveButton("OK", (dialog, id) -> dialog.dismiss());
 
+        // Create and show the dialog
         AlertDialog dialog = builder.create();
         dialog.setCancelable(false);
         dialog.show();
@@ -208,15 +211,17 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void setBombs(){
-        int bombsSet=bombs;
+        int bombsSet=bombs;//The bombs yet to place
         Random random = new Random();
 
         do{
+            //Get a BombButton at random position
             int position = random.nextInt(level * level);
             int row=position/level;
             int col=position%level;
             BombButton btn = (BombButton)gridLayout.getChildAt(position);
 
+            //If it is not a bomb, set a bomb
             if(btn.getBombs()!=-1){
                 btn.setBombs(-1);
                 bombsSet--;
@@ -226,20 +231,27 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void SetSurroundings(){
+        // Travel across the gridLayout
         for(int i=0;i<this.gridLayout.getRowCount();i++){
             for(int j=0;j<this.gridLayout.getColumnCount();j++){
+                // Get the BombButton at the current position
                 BombButton btn = (BombButton)gridLayout.getChildAt(i*this.gridLayout.getRowCount()+j);
+                //if not a bomb, set the surroundings
                 if(btn.getBombs()!=-1){
+                    //Calculate surroundings
                     for(int k=i-1;k<=i+1;k++) {
                         for (int l = j - 1; l <= j + 1; l++) {
+                            //If the position is valid
                             if (k >= 0 && k < this.gridLayout.getRowCount() && l >= 0 && l < this.gridLayout.getColumnCount()) {
                                 BombButton btn2 = (BombButton) gridLayout.getChildAt(k * this.gridLayout.getRowCount() + l);
+                                //If it is a bomb, add one
                                 if (btn2.getBombs() == -1) {
                                     btn.setBombs(btn.getBombs() + 1);
                                 }
                             }
                         }
                     }
+                    //Set icon depending on surrounding bombs
                     switch (btn.getBombs()){
                         case 1:
                             btn.setIconID(R.drawable.n1);
@@ -267,9 +279,6 @@ public class MainActivity extends AppCompatActivity
                             break;
                     }
                 }
-                else{
-                    btn.setText("B");
-                }
             }
         }
     }
@@ -277,15 +286,13 @@ public class MainActivity extends AppCompatActivity
     private void createChronometer(){
         chronometer = findViewById(R.id.chronometer);
 
-        chronometer.setOnChronometerTickListener(new Chronometer.OnChronometerTickListener() {
-            @Override
-            public void onChronometerTick(Chronometer chronometer) {
-                long elapsedMillis = SystemClock.elapsedRealtime() - chronometer.getBase();
-                int minutes = (int) (elapsedMillis / 60000);
-                int seconds = (int) (elapsedMillis % 60000 / 1000);
-                String formattedTime = String.format("%02dmin:%02dsec", minutes, seconds);
-                chronometer.setText(formattedTime);
-            }
+        // Set the parameters of the Chronometer
+        chronometer.setOnChronometerTickListener(chronometer -> {
+            long elapsedMillis = SystemClock.elapsedRealtime() - chronometer.getBase();
+            int minutes = (int) (elapsedMillis / 60000);
+            int seconds = (int) (elapsedMillis % 60000 / 1000);
+            String formattedTime = String.format("%02dmin:%02dsec", minutes, seconds);
+            chronometer.setText(formattedTime);
         });
     }
 
@@ -308,7 +315,6 @@ public class MainActivity extends AppCompatActivity
         imageView.setLayoutParams(paramsIV);
         gridLayout.removeView(imageView);
 
-
         //4. Modify width and height
         paramsIV.width = cellWidth;
         paramsIV.height = cellHeight;
@@ -318,23 +324,26 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void searchVoidCells(int row, int col){
-        BombButton bombButton=null;
-        View child = gridLayout.getChildAt(row * gridLayout.getColumnCount() + col);
+        BombButton bombButton=null;//The reference of the BombButton in that position
+        View child = gridLayout.getChildAt(row * gridLayout.getColumnCount() + col);//Get the child at the specified position
+
+        //If the child is a BomButton, assign it to bombButton
         if(child instanceof BombButton) {
             bombButton = (BombButton) gridLayout.getChildAt(row * this.gridLayout.getRowCount() + col);
-        }else{
+        }else{//If it is not a BombButton, return
             return;
         }
 
-        //if (row < 0 || row >= gridLayout.getRowCount() || col < 0 || col >= gridLayout.getColumnCount() || bombButton.isFlagged() || bombButton.getBombs() != 0 || bombButton.isVisited()) {
+        //If out of scope, already visited, with a flag on it, return
         if (row < 0 || row >= gridLayout.getRowCount() || col < 0 || col >= gridLayout.getColumnCount() || bombButton.isFlagged() || bombButton.isVisited()) {
             return;
         }
 
         bombButton.setVisited(true);
         switchToIV(bombButton);
+
+        //Recursive search
         if(bombButton.getBombs()==0) {
-            //bombButton.hideButton();
             searchVoidCells(row - 1, col);
             searchVoidCells(row + 1, col);
             searchVoidCells(row, col - 1);
@@ -343,14 +352,16 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void endGame(){
-        boolean victory=true;
+        boolean victory=true; //To control if all flags are correct
 
+        // Searching for incorrect flags
         for(int i=0;i<bombButtons.size();i++){
             if(bombButtons.get(i).getBombs()!=-1 && bombButtons.get(i).isFlagged()){
-                System.out.println(bombButtons.get(i).getBombs()+"Error");
                 victory=false;
             }
         }
+
+        // Showing victory Dialog
         if(victory) {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setTitle(getString(R.string.st_victory));
@@ -361,7 +372,7 @@ public class MainActivity extends AppCompatActivity
             dialog.setCancelable(false);
             dialog.show();
             chronometer.stop();
-        }else{
+        }else{//Or show game over Dialog
             gameOver();
         }
     }
@@ -394,33 +405,33 @@ public class MainActivity extends AppCompatActivity
     private void showConfig(){
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
-// 2. Inflate the custom layout for the dialog
+        // 2. Inflate the custom layout for the dialog
         LayoutInflater inflater = getLayoutInflater();
         View dialogView = inflater.inflate(R.layout.dialog_config, null); // Create dialog_level_selection.xml
 
-// 3. Find the RadioButtons in the layout
+        // 3. Find the RadioButtons in the layout
         RadioGroup radioGroup = dialogView.findViewById(R.id.radioGroupLevels);
         RadioButton rbEasy = dialogView.findViewById(R.id.rbEasy);
         RadioButton rbMedium = dialogView.findViewById(R.id.rbMedium);
         RadioButton rbHard = dialogView.findViewById(R.id.rbHard);
 
-// 4. Set the dialog view
+        // 4. Set the dialog view
         builder.setView(dialogView);
 
-// 5. Set the title
+        // 5. Set the title
         builder.setTitle(R.string.st_config);
 
-// 6. Set the "Volver" button
+        // 6. Set the "Volver" button
         builder.setNegativeButton(R.string.st_back, (dialog, which) -> {
             // Do nothing, just dismiss the dialog
             dialog.dismiss();
         });
 
-// 7. Create and show the dialog
+        // 7. Create and show the dialog
         AlertDialog dialog = builder.create();
         dialog.show();
 
-// 8. Handle RadioButton selection
+        // 8. Handle RadioButton selection
         radioGroup.setOnCheckedChangeListener((group, checkedId) -> {
             if(checkedId==R.id.rbEasy){
                 level=LEVEL_EASY;
@@ -440,14 +451,14 @@ public class MainActivity extends AppCompatActivity
     private void showCharacter(){
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
-// 2. Inflate the custom layout for the dialog
+        // 2. Inflate the custom layout for the dialog
         LayoutInflater inflater = getLayoutInflater();
         View dialogView = inflater.inflate(R.layout.dialog_characters_selection, null);
 
-// 3. Find the Spinner in the layout
+        // 3. Find the Spinner in the layout
         Spinner spinnerCharacter = dialogView.findViewById(R.id.spinnerCharacters);
 
-// 4. Create a list of weapons
+        // 4. Create a list of weapons
         List<Character> characters = new ArrayList<>();
         characters.add(new Character("Bomba", R.drawable.bomb));
         characters.add(new Character("Dinamita", R.drawable.dynamite));
@@ -456,17 +467,17 @@ public class MainActivity extends AppCompatActivity
         characters.add(new Character("Volcán", R.drawable.volcano));
         characters.add(new Character("Mina submarina", R.drawable.submarine));
 
-// 5. Create and set the custom adapter
+        // 5. Create and set the custom adapter
         CharacterSpinnerAdapter adapter = new CharacterSpinnerAdapter(this, characters);
         spinnerCharacter.setAdapter(adapter);
 
-// 6. Set the dialog view
+        // 6. Set the dialog view
         builder.setView(dialogView);
 
-// 7. Set the title
+        // 7. Set the title
         builder.setTitle("Selecciona un arma");
 
-// 8. Set the positive button (OK)
+        // 8. Set the positive button (OK)
         builder.setPositiveButton("OK", (dialog, which) -> {
             // Get the selected weapon
             Character selectedCharacter = (Character) spinnerCharacter.getSelectedItem();
@@ -475,7 +486,7 @@ public class MainActivity extends AppCompatActivity
             dialog.dismiss();
         });
 
-// 9. Create and show the dialog
+        // 9. Create and show the dialog
         AlertDialog dialog = builder.create();
         dialog.show();
     }

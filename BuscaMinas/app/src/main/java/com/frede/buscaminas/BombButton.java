@@ -14,7 +14,7 @@ public class BombButton extends AppCompatButton{
     private int bombs; // The number of bombs around the button. -1 if the Button is a Bomb
     private int iconID;
     private Button btn; // The reference to the Button itself
-    private ImageView iv;
+    private ImageView iv; // ImagView for the Icon
 
     public BombButton(Context context) {
         super(context);
