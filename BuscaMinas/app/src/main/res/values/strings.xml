@@ -1,0 +1,17 @@
+<resources>
+    <string name="app_name">Buscaminas</string>
+    <string name="st_back">Volver</string>
+    <string name="st_character">Personaje</string>
+    <string name="st_config">Configuración</string>
+    <string name="st_easy">Principiante</string>
+    <string name="st_game_over">Game Over</string>
+    <string name="st_game_over_text">Has perdido. Inténtalo de nuevo.</string>
+    <string name="st_hard">Avanzado</string>
+    <string name="st_instructions">Instrucciones</string>
+    <string name="st_instructions_text">"Cuando pulsas una casilla, sale un número qui identifica cúantas minas hay alrededor: Ten cuidado porque si pulsas en una casilla que tenga una mina escondida, perderás. Si crees o tienes la certeza de que hay una mina, haz click largo sobtre la casilla para señalarla. No hagas un click largo en una casilla donde no hay una mina porque perderás.Ganas una vez hayas encontrado todas las minas."</string>
+    <string name="st_medium">Amateur</string>
+    <string name="st_new_game">Nuevo Juego</string>
+    <string name="st_selection_character">Selecciona el tipo de bomba:</string>
+    <string name="st_victory">¡Enhorabuena!</string>
+    <string name="st_victory_text">¡Has encontrado todas la bombas!</string>
+</resources>
